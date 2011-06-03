@@ -14,4 +14,13 @@ You can rehash with:
 
     /etc/rc.d/znc rehash
 
+Adding znc to the DAEMONS (/etc/rc.conf)
+
+    DAEMONS=(... network ... @znc)
+
 When you install this package (znc-system-wide), a user and group named znc will be created. The config for ZNC will be located at `/var/lib/znc`.
+
+Using rc.d scripts with an existing ZNC config
+----------------------------------------------
+
+You can edit the contents of the /etc/conf.d/znc file by changing the variables to point to your config and user.
