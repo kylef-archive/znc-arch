@@ -1,0 +1,15 @@
+post_install() {
+  getent group znc &>/dev/null || groupadd -r -g 143 znc > /dev/null
+  getent passwd znc &>/dev/null || useradd -r -u 143 -g znc -d /var/lib/znc -s /bin/false -c znc znc
+
+  echo '==> You need to make config for ZNC. This can be done with the following command.'
+  echo '==>   /etc/rc.d/znc makeconf'
+}
+
+post_remove() {
+  getent passwd znc &>/dev/null && userdel znc >/dev/null
+  getent group znc &>/dev/null && groupdel znc >/dev/null
+
+  echo '==> Old ZNC config may be leftover at /var/lib/znc. To remove this run the following.'
+  echo '==>   rm -rf /var/lib/znc'
+}

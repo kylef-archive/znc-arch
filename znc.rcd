@@ -1,0 +1,68 @@
+#!/bin/bash
+
+. /etc/rc.conf
+. /etc/rc.d/functions
+[ -f /etc/conf.d/znc ] && . /etc/conf.d/znc
+
+get_pid() {
+  pidof ${ZNC_BIN}
+}
+
+case "$1" in
+  start)
+    stat_busy "Starting znc"
+    PID=$(get_pid)
+    if [ -z "$PID" ]; then
+      su -s /bin/sh -c "${ZNC_BIN} -d ${ZNC_CONF}" "${ZNC_USER}" > /dev/null
+      if [ $? -gt 0 ]; then
+        stat_fail
+        exit 1
+      else
+        add_daemon znc
+        stat_done
+      fi
+    else
+      stat_fail
+      exit 1
+    fi
+    ;;
+
+  stop)
+    stat_busy "Stopping znc"
+    PID=$(get_pid)
+    [ ! -z "$PID" ] && kill $PID
+    if [ $? -gt 0 ]; then
+      stat_fail
+      exit 1
+    else
+      rm_daemon znc
+      stat_done
+    fi
+    ;;
+
+  restart)
+    $0 stop
+    $0 start
+    ;;
+
+  rehash)
+    stat_busy "Rehasing znc"
+    PID=$(get_pid)
+    [ ! -z "$PID" ] && kill -SIGHUP $PID
+    if [ $? -gt 0 ]; then
+      stat_fail
+      exit 1
+    else
+      stat_done
+    fi
+    ;;
+
+  makeconf)
+    su -s /bin/sh -c "${ZNC_BIN} -d ${ZNC_CONF} --makeconf" "${ZNC_USER}"
+    ;;
+
+  *)
+    echo "usage: $0 {start|stop|restart|rehash|makeconf}"
+esac
+exit 0
+
